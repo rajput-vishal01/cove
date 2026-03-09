@@ -5,16 +5,8 @@ export const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
 
-    if (!user) {
-      throw new Error("User not found");
-    }
-
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
-
-    if (!accessToken || !refreshToken) {
-      throw new Error("Failed to generate tokens");
-    }
 
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
@@ -32,24 +24,12 @@ export const generateRefreshAccessToken = async (req, res) => {
   try {
     const oldRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
-    if (!oldRefreshToken) {
-      return res.status(401).json({
-        message: "Refresh token required",
-      });
-    }
-
     const decodedToken = jwt.verify(
       oldRefreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
 
     const user = await User.findById(decodedToken?._id);
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
 
     if (oldRefreshToken !== user.refreshToken) {
       return res.status(403).json({
@@ -86,13 +66,9 @@ export const generateRefreshAccessToken = async (req, res) => {
 export const signup = async (req, res) => {
   const { username, fullName, email, password } = req.body;
 
-  if (!username || !fullName || !email || !password) {
-    return res.status(400).json({
-      message: "All fields are required",
-    });
-  }
-
-  const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+  const existingUser = await User.findOne({
+    $or: [{ email }, { username }],
+  });
 
   if (existingUser) {
     return res.status(409).json({

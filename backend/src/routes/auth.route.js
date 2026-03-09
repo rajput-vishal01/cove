@@ -4,9 +4,12 @@ import {
   generateRefreshAccessToken,
 } from "../controller/auth.controller.js";
 
+import { signupSchema } from "../validators/auth.validator.js";
+import { validate } from "../middlewares/validate.middleware.js";
+
 const router = express.Router();
 
-router.post("/signup", signup);
+router.post("/signup", validate(signupSchema), signup);
 
 router.post("/refresh-token", generateRefreshAccessToken);
 
