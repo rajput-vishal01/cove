@@ -104,3 +104,53 @@ export const signup = async (req, res) => {
       user: createdUser,
     });
 };
+export const login = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    const user = await User.findOne({
+      $or: [{ email }, { username }],
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User does not exist",
+      });
+    }
+
+    const isPasswordCorrect = await user.isPasswordCorrect(password);
+
+    if (!isPasswordCorrect) {
+      return res.status(401).json({
+        message: "Invalid credentials",
+      });
+    }
+
+    const { accessToken, refreshToken } =
+      await generateAccessTokenAndRefreshToken(user._id);
+
+    const loggedInUser = await User.findById(user._id).select(
+      "-password -refreshToken"
+    );
+
+    const options = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    };
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json({
+        message: "User logged in successfully",
+        user: loggedInUser,
+      });
+  } catch (error) {
+    console.log("Error in login controller:", error);
+
+    return res.status(500).json({
+      message: "Something went wrong during login",
+    });
+  }
+};
