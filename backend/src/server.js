@@ -1,8 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
-import { dbConnect } from "../lib/db.js";
+import { dbConnect } from "./lib/db.js";
 import cookieParser from "cookie-parser";
-import userRouter from "../routes/auth.route.js";
+import userRouter from "./routes/auth.route.js";
 
 dotenv.config();
 dbConnect();
