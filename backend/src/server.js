@@ -13,10 +13,6 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cookieParser());
 
-app.get("/", (req, res) => {
-  res.send("server");
-});
-
 app.use("/api/v1/", userRouter);
 
 app.listen(PORT, () => {
