@@ -154,3 +154,29 @@ export const login = async (req, res) => {
     });
   }
 };
+
+
+export const logout = async (req, res) => {
+  try {
+    // verifyJWT middleware attaches req.user
+    await User.findByIdAndUpdate(
+      req.user._id,
+      { $unset: { refreshToken: 1 } }, // removes refreshToken from DB
+      { new: true }
+    );
+ 
+    const options = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    };
+ 
+    return res
+      .status(200)
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.log("Error in logout controller:", error);
+    return res.status(500).json({ message: "Something went wrong during logout" });
+  }
+};

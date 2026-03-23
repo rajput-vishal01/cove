@@ -1,4 +1,9 @@
 import mongoose from "mongoose";
+import dns from "dns";
+
+// my pc dns is broken
+dns.setServers(["8.8.8.8"]);
+dns.setDefaultResultOrder("ipv4first");
 
 export const dbConnect = async () => {
   try {
