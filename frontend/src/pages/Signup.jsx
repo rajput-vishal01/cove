@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const inputStyle = {
   width: "100%",
@@ -18,11 +20,37 @@ const inputStyle = {
 const fields = [
   { type: "text", name: "username", placeholder: "Username" },
   { type: "email", name: "email", placeholder: "Email" },
-  { type: "text", name: "fullname", placeholder: "Full Name" },
+  { type: "text", name: "fullName", placeholder: "Full Name" },
   { type: "password", name: "password", placeholder: "Password" },
 ];
 
 const Signup = () => {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    fullName: "",
+    password: "",
+  });
+
+  async function registerUser(e) {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/v1/signup",
+        form,
+        { withCredentials: true },
+      );
+
+      navigate("/");
+      // console.log(response.data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   return (
     <main
       style={{
@@ -77,6 +105,8 @@ const Signup = () => {
               key={name}
               type={type}
               name={name}
+              value={form[name]}
+              onChange={(e) => setForm({ ...form, [name]: e.target.value })}
               placeholder={placeholder}
               style={inputStyle}
               onFocus={(e) => {
@@ -106,6 +136,7 @@ const Signup = () => {
             }}
             onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+            onClick={registerUser}
           >
             Create Account
           </button>

@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios"; 
 
 const inputStyle = {
   width: "100%",
@@ -16,6 +18,26 @@ const inputStyle = {
 };
 
 const Login = () => {
+
+  const navigate = useNavigate()
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  async function loginUser(e) {
+   try {
+     e.preventDefault();
+    const res =await axios.post("http://localhost:5000/api/v1/login", form, {
+      withCredentials: true,
+    });
+
+    navigate("/")
+   } catch (error) {
+    console.log(error)
+   }
+  }
+
   return (
     <main
       style={{
@@ -73,6 +95,10 @@ const Login = () => {
               key={name}
               type={type}
               name={name}
+              value={form[name]}
+              onChange={(e) => {
+                setForm({ ...form, [name]: e.target.value });
+              }}
               placeholder={placeholder}
               style={inputStyle}
               onFocus={(e) => {
@@ -121,6 +147,7 @@ const Login = () => {
               cursor: "pointer",
               transition: "opacity 0.15s",
             }}
+            onClick={loginUser}
             onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
           >
